@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IP Location Finder</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            overflow: hidden;
+        }
+
+        /* Full-screen map */
+        #map {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: 1;
+        }
+
+        /* Top search bar style header */
+        .top-bar {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            background: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .top-bar h1 {
+            font-size: 18px;
+            font-weight: 500;
+            color: #202124;
+            margin: 0;
+        }
+
+        .top-bar .icon {
+            font-size: 24px;
+        }
+
+        /* Floating info card (Google Maps style) */
+        .info-card {
+            position: absolute;
+            top: 100px;
+            left: 20px;
+            z-index: 1000;
+            background: white;
+            width: 380px;
+            max-height: calc(100vh - 140px);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.26);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-header {
+            padding: 20px 24px 16px;
+            border-bottom: 1px solid #e8eaed;
+        }
+
+        .info-header h2 {
+            font-size: 22px;
+            font-weight: 400;
+            color: #202124;
+            margin-bottom: 4px;
+        }
+
+        .info-header .subtitle {
+            font-size: 14px;
+            color: #70757a;
+        }
+
+        .info-content {
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .info-section {
+            padding: 16px 24px;
+            border-bottom: 1px solid #e8eaed;
+        }
+
+        .info-section:last-child {
+            border-bottom: none;
+        }
+
+        .section-title {
+            font-size: 11px;
+            font-weight: 500;
+            color: #70757a;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 12px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+        }
+
+        .info-label {
+            font-size: 14px;
+            color: #70757a;
+        }
+
+        .info-value {
+            font-size: 14px;
+            color: #202124;
+            font-weight: 500;
+            text-align: right;
+            max-width: 60%;
+            word-wrap: break-word;
+        }
+
+        .ip-badge {
+            display: inline-block;
+            background: #e8f0fe;
+            color: #1967d2;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 500;
+            margin: 4px 0;
+        }
+
+        .footer-note {
+            padding: 12px 24px;
+            font-size: 11px;
+            color: #70757a;
+            text-align: center;
+            background: #f8f9fa;
+        }
+
+        .footer-note a {
+            color: #1a73e8;
+            text-decoration: none;
+        }
+
+        .footer-note a:hover {
+            text-decoration: underline;
+        }
+
+        /* Zoom controls styling */
+        .leaflet-control-zoom {
+            border: none !important;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3) !important;
+        }
+
+        .leaflet-control-zoom a {
+            background-color: white !important;
+            color: #202124 !important;
+            border: none !important;
+            width: 40px !important;
+            height: 40px !important;
+            line-height: 40px !important;
+            font-size: 20px !important;
+        }
+
+        .leaflet-control-zoom a:hover {
+            background-color: #f8f9fa !important;
+        }
+
+        /* Custom marker popup */
+        .leaflet-popup-content-wrapper {
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.26);
+        }
+
+        .leaflet-popup-content {
+            margin: 16px;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .info-card {
+                left: 10px;
+                right: 10px;
+                width: auto;
+                max-height: 50vh;
+            }
+
+            .top-bar {
+                left: 10px;
+                right: 10px;
+                transform: none;
+            }
+        }
+
+        /* No data message */
+        .no-data {
+            padding: 40px 24px;
+            text-align: center;
+            color: #70757a;
+        }
+    </style>
+
+    <!-- Leaflet.js Integration -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+
+<body>
+    <!-- Top bar -->
+    <div class="top-bar">
+        <span class="icon">🌍</span>
+        <h1>IP Location Finder</h1>
+    </div>
+
+    <!-- Full-screen map -->
+    <div id="map"></div>
+
+    <!-- Floating info card -->
+    {% if data %}
+    <div class="info-card">
+        <div class="info-header">
+            <h2>{{ data.city or "Unknown Location" }}</h2>
+            <div class="subtitle">{{ data.country_name or "N/A" }}</div>
+        </div>
+
+        <div class="info-content">
+            <div class="info-section">
+                <div class="section-title">IP Addresses</div>
+                {% if ipv4 %}
+                <div class="ip-badge">IPv4: {{ ipv4 }}</div>
+                {% endif %}
+                {% if ipv6 %}
+                <div class="ip-badge">IPv6: {{ ipv6 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="info-section">
+                <div class="section-title">Location Details</div>
+                <div class="info-row">
+                    <span class="info-label">City</span>
+                    <span class="info-value">{{ data.city or "N/A" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Region</span>
+                    <span class="info-value">{{ data.region or "N/A" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Country</span>
+                    <span class="info-value">{{ data.country_name or "N/A" }} ({{ data.country or "N/A" }})</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Timezone</span>
+                    <span class="info-value">{{ data.timezone or "N/A" }}</span>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <div class="section-title">Network Information</div>
+                <div class="info-row">
+                    <span class="info-label">ISP / Organization</span>
+                    <span class="info-value">{{ data.org or "N/A" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">ASN</span>
+                    <span class="info-value">{{ data.asn or "N/A" }}</span>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <div class="section-title">Coordinates</div>
+                <div class="info-row">
+                    <span class="info-label">Latitude</span>
+                    <span class="info-value">{{ data.latitude or "N/A" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Longitude</span>
+                    <span class="info-value">{{ data.longitude or "N/A" }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-note">
+            Data from <a href="https://ipapi.co" target="_blank">ipapi.co</a> & <a href="https://ipify.org" target="_blank">ipify.org</a>
+        </div>
+    </div>
+    {% else %}
+    <div class="info-card">
+        <div class="no-data">
+            <h2>Unable to retrieve IP information</h2>
+            <p>Please check your internet connection and try again.</p>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Leaflet Map Integration -->
+    <script>
+        const mapData = {
+            lat: {{ data.latitude | default(0) | tojson }},
+            lon: {{ data.longitude | default(0) | tojson }},
+            city: {{ data.city | default('Unknown') | tojson }},
+            country: {{ data.country_name | default('Unknown') | tojson }}
+        };
+        
+        const lat = Number(mapData.lat);
+        const lon = Number(mapData.lon);
+        const city = mapData.city;
+        const country = mapData.country;
+
+        // Initialize Leaflet map
+        if (Number.isFinite(lat) && Number.isFinite(lon)) {
+            if (window.__leafletMap) {
+                window.__leafletMap.remove();
+            }
+            window.__leafletMap = L.map('map', {
+                zoomControl: true,
+                attributionControl: true
+            }).setView([lat, lon], 12);
+
+            // Use OpenStreetMap tiles (Google Maps style would require API key)
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(window.__leafletMap);
+
+            // Add a custom marker
+            const customIcon = L.divIcon({
+                className: 'custom-marker',
+                html: '<div style="background: #ea4335; width: 24px; height: 24px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);"></div>',
+                iconSize: [30, 30],
+                iconAnchor: [15, 30]
+            });
+
+            L.marker([lat, lon], { icon: customIcon }).addTo(window.__leafletMap)
+                .bindPopup(`<strong>${city}, ${country}</strong><br>Lat: ${lat.toFixed(4)}, Lon: ${lon.toFixed(4)}`)
+                .openPopup();
+        }
+    </script>
+</body>
+</html>
