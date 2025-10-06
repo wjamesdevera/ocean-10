@@ -31,7 +31,7 @@ def index():
     ipv4 = get_ip_address("ipv4")
     ipv6 = get_ip_address("ipv6")
 
-    # Prefer to use IPv4 info for geolocation, fallback to IPv6
+    # Uses IPv4 info for geolocation, fallback to IPv6
     info_data = get_ip_info(ipv4) if ipv4 else get_ip_info(ipv6)
 
     return render_template("index.html", ipv4=ipv4, ipv6=ipv6, data=info_data)
