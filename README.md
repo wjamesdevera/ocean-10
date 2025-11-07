@@ -97,6 +97,23 @@ The application will:
   - ipapi.co (geolocation data - primary)
   - ip-api.com (geolocation data - fallback)
 
+## CI/CD Pipeline
+
+This project includes a **Continuous Integration/Continuous Deployment (CI/CD)** pipeline using GitHub Actions.
+
+### Pipeline Features:
+- ✅ **Automated Code Quality Checks** - Linting and style validation
+- ✅ **Automated Testing** - Unit tests run on every push
+- ✅ **Build Validation** - Ensures application compiles correctly
+- ✅ **Security Scanning** - Checks for dependency vulnerabilities
+
+### View Pipeline Status:
+1. Go to the **Actions** tab in your GitHub repository
+2. See all pipeline runs and their status
+3. Click on any run to see detailed results
+
+For more information about our CI/CD setup, see [CI_CD_PRESENTATION_GUIDE.md](CI_CD_PRESENTATION_GUIDE.md)
+
 ## Notes
 
 - The application runs in debug mode by default
