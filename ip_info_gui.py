@@ -178,7 +178,7 @@ class IPLocationFinderGUI:
         ip_label = ttk.Label(search_card, text="IP Address:", style='Body.TLabel')
         ip_label.grid(row=0, column=0, padx=(0, 12), pady=5, sticky=tk.W)
         
-        self.ip_entry = ttk.Entry(search_card, width=35, font=('Segoe UI', 10))
+        self.ip_entry = ttk.Entry(search_card, width=45, font=('Segoe UI', 12))
         self.ip_entry.grid(row=0, column=1, sticky=(tk.W, tk.E), padx=(0, 12), pady=5)
         self.ip_entry.bind('<Return>', lambda e: self.lookup_ip())
         
