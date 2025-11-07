@@ -45,6 +45,7 @@
             display: flex;
             align-items: center;
             gap: 12px;
+            flex-wrap: wrap;
         }
 
         .top-bar h1 {
@@ -56,6 +57,47 @@
 
         .top-bar .icon {
             font-size: 24px;
+        }
+
+        .ip-search-form {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .ip-search-form input {
+            padding: 8px 12px;
+            border: 1px solid #dadce0;
+            border-radius: 24px;
+            font-size: 14px;
+            width: 200px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .ip-search-form input:focus {
+            border-color: #1a73e8;
+        }
+
+        .ip-search-form button {
+            padding: 8px 16px;
+            background: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 24px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .ip-search-form button:hover {
+            background: #1557b0;
+        }
+
+        .ip-search-form button:active {
+            background: #0d47a1;
         }
 
         /* Floating info card (Google Maps style) */
@@ -89,6 +131,19 @@
         .info-header .subtitle {
             font-size: 14px;
             color: #70757a;
+        }
+
+        .fetch-time {
+            font-size: 12px;
+            color: #70757a;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #e8eaed;
+        }
+
+        .fetch-time-label {
+            font-weight: 500;
+            color: #5f6368;
         }
 
         .info-content {
@@ -207,6 +262,18 @@
                 left: 10px;
                 right: 10px;
                 transform: none;
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .ip-search-form {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .ip-search-form input {
+                flex: 1;
+                width: auto;
             }
         }
 
@@ -228,6 +295,13 @@
     <div class="top-bar">
         <span class="icon">🌍</span>
         <h1>IP Location Finder</h1>
+        <form class="ip-search-form" method="POST" action="/">
+            <input type="text" name="ip_address" placeholder="Enter IP address (e.g., 8.8.8.8)" value="{{ lookup_ip or '' }}" />
+            <button type="submit">Lookup</button>
+        </form>
+        <form class="ip-search-form" method="GET" action="/" style="margin-left: 0;" onsubmit="document.querySelector('input[name=\'ip_address\']').value = '';">
+            <button type="submit">My IP</button>
+        </form>
     </div>
 
     <!-- Full-screen map -->
@@ -239,6 +313,11 @@
         <div class="info-header">
             <h2>{{ data.city or "Unknown Location" }}</h2>
             <div class="subtitle">{{ data.country_name or "N/A" }}</div>
+            {% if fetch_time %}
+            <div class="fetch-time">
+                <span class="fetch-time-label">Last fetched:</span> {{ fetch_time }}
+            </div>
+            {% endif %}
         </div>
 
         <div class="info-content">
@@ -298,14 +377,38 @@
         </div>
 
         <div class="footer-note">
-            Data from <a href="https://ipapi.co" target="_blank">ipapi.co</a> & <a href="https://ipify.org" target="_blank">ipify.org</a>
+            Data from <a href="https://ipapi.co" target="_blank">ipapi.co</a> & <a href="https://ipify.org" target="_blank">ipify.org</a> (with <a href="http://ip-api.com" target="_blank">ip-api.com</a> fallback)
         </div>
     </div>
     {% else %}
     <div class="info-card">
         <div class="no-data">
             <h2>Unable to retrieve IP information</h2>
+            {% if lookup_failed %}
+            <p>Could not find information for the IP address "{{ lookup_ip }}".</p>
+            <p style="margin-top: 8px;">This could be due to:</p>
+            <ul style="margin-top: 8px; padding-left: 20px; text-align: left; display: inline-block;">
+                <li>Invalid IP address format</li>
+                <li>API rate limiting (try again in a few minutes)</li>
+                <li>IP address not found in database</li>
+            </ul>
+            {% elif auto_detect_failed %}
+            <p>Unable to retrieve your IP location information.</p>
+            <p style="margin-top: 8px;">This could be due to:</p>
+            <ul style="margin-top: 8px; padding-left: 20px; text-align: left; display: inline-block;">
+                <li>API rate limiting (try again in a few minutes)</li>
+                <li>Network connectivity issues</li>
+                <li>Temporary API unavailability</li>
+            </ul>
+            <p style="margin-top: 12px;">The application will automatically try a fallback API if the primary service is unavailable.</p>
+            {% else %}
             <p>Please check your internet connection and try again.</p>
+            {% endif %}
+            {% if fetch_time %}
+            <div class="fetch-time" style="margin-top: 16px; border-top: none; padding-top: 0;">
+                <span class="fetch-time-label">Last fetched:</span> {{ fetch_time }}
+            </div>
+            {% endif %}
         </div>
     </div>
     {% endif %}

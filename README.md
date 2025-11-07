@@ -13,16 +13,20 @@ Your manager would also like a list of other enhancements for a future revision.
 
 # IP Location Finder 🌍
 
-A web application that displays your public IPv4 and IPv6 addresses along with detailed geolocation information on an interactive map.
+A desktop GUI and web application that displays your public IPv4 and IPv6 addresses along with detailed geolocation information.
 
 ## Features
 
-- 🗺️ **Interactive Map**: Full-screen Leaflet.js map showing your location
+- 🖥️ **Desktop GUI**: Native Tkinter application (no browser required)
+- 🌐 **Web Version**: Browser-based interface with interactive map
 - 📍 **Dual IP Support**: Displays both IPv4 and IPv6 addresses
-- 🌐 **Geolocation Details**: City, region, country, timezone, and coordinates
+- 🔍 **IP Lookup**: Search for any IP address location and information
+- 🌍 **Geolocation Details**: City, region, country, timezone, and coordinates
 - 🔌 **Network Info**: ISP/organization and ASN details
-- 🎨 **Modern UI**: Clean, Google Maps-inspired interface with floating info cards
-- 📱 **Responsive Design**: Works seamlessly on desktop and mobile devices
+- ⏰ **Timestamp Display**: Shows when IP data was last fetched
+- 🗺️ **Map Integration**: View location on OpenStreetMap (web version has interactive map)
+- 🔄 **Fallback API**: Automatically switches to backup API if primary fails
+- 🎨 **Modern UI**: Clean, user-friendly interface
 
 ## Setup
 
@@ -45,7 +49,25 @@ Dependencies include:
 
 ## Run
 
-Start the web server:
+### GUI Version (Recommended)
+
+Run the desktop GUI application:
+
+```bash
+python ip_info_gui.py
+```
+
+This opens a native desktop window with:
+- IP address input field
+- "My IP" button to auto-detect your IP
+- "Lookup" button to search any IP address
+- Detailed information display
+- "View on Map" button to open location in browser
+- Timestamp showing when data was fetched
+
+### Web Version
+
+Alternatively, start the web server:
 
 ```bash
 python ip_info.py
@@ -66,12 +88,14 @@ The application will:
 
 ## Technologies Used
 
-- **Backend**: Flask (Python)
-- **Frontend**: HTML, CSS, JavaScript
-- **Map**: Leaflet.js with OpenStreetMap tiles
+- **GUI Version**: Tkinter (Python built-in)
+- **Web Version**: Flask (Python)
+- **Frontend**: HTML, CSS, JavaScript (web version only)
+- **Map**: Leaflet.js with OpenStreetMap tiles (web version) / OpenStreetMap links (GUI version)
 - **APIs**:
   - ipify.org (IP address lookup)
-  - ipapi.co (geolocation data)
+  - ipapi.co (geolocation data - primary)
+  - ip-api.com (geolocation data - fallback)
 
 ## Notes
 
